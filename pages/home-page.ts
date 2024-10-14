@@ -10,6 +10,8 @@ export class HomePage {
   readonly asideFilters: Locator;
   readonly clearFiltersButton: Locator;
 
+  readonly nextButton: Locator;
+  readonly previousButton: Locator;
   constructor(page: Page) {
     this.page = page;
     this.header = page.locator("h1");
@@ -22,6 +24,8 @@ export class HomePage {
     this.clearFiltersButton = page.getByRole("button", {
       name: "Clear filters",
     });
+    this.nextButton = page.locator('button:has-text("Next")');
+    this.previousButton = page.locator('button:has-text("Previous")');
   }
   /* ASIDE FILTERS */
 
@@ -58,9 +62,6 @@ export class HomePage {
   async verifyShowAllButton() {
     await expect(this.showAllButton).toBeVisible();
   }
-  async verifySearchInputField() {
-    await expect(this.searchInput).toBeVisible();
-  }
 
   async verifyButtonActive(button: Locator): Promise<void> {
     const brightnessFilter = await button.evaluate((btn) => {
@@ -89,6 +90,14 @@ export class HomePage {
   async clickShowAllButton() {
     await this.showAllButton.click();
   }
+  async clickNextButton() {
+    await this.nextButton.isVisible();
+    await this.nextButton.click();
+  }
+//+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
+  async verifySearchInputField() {
+  await expect(this.searchInput).toBeVisible();
+  }
   async searchCharacter(name: string) {
     await this.searchInput.fill(name);
     await this.searchButton.click();
@@ -112,6 +121,7 @@ export class HomePage {
     );
     await expect(noResultsMessage).toBeVisible();
   }
+//+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
   async goto() {
     await this.page.goto("https://dragon-ball-api-react.vercel.app/");
   }
@@ -121,5 +131,34 @@ export class HomePage {
     await expect(characterCard).toContainText(name);
 
     await characterCard.click();
+  }
+//+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
+  async verifyCharactersPerPage(){ //should display 12 characters per page while next button is visible
+    //await this.page.waitForSelector('img[alt="Loading..."]', { state: 'hidden', timeout: 10000 });
+    await this.page.waitForTimeout(4000);
+
+    const characters = await this.page.locator('h2.text-lg.mb-2.text-white.font-bold').count();
+    expect(characters).toBe(12);
+  }
+  async verifyNextPageButton(){
+    const nextPageButton = this.page.locator('button:has-text("Next")');
+    await expect(nextPageButton).toBeVisible();
+  }
+  async verifyNextPage(){
+
+    await this.nextButton.click();
+    await this.verifyCharactersPerPage();
+  }
+  async verifyPreviousPage(){
+    await this.previousButton.click();
+    await this.verifyCharactersPerPage();
+  }
+  async verifyLastPage(){
+    const nextButton = this.nextButton;
+
+    for (let pageCount = 0; nextButton.isVisible(); pageCount++) {
+      console.log(pageCount);
+      await this.clickNextButton();
+    }
   }
 }

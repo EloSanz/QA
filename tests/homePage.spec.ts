@@ -81,3 +81,27 @@ test.describe("Aside Filters", () => {
     await homePage.verifyButtonInactive(firstFilterButton);
   });
 });
+
+test.describe("Pagination", () => {
+  let homePage: HomePage;
+
+  test.beforeEach(async ({ page }) => {
+    homePage = new HomePage(page);
+    await homePage.goto();
+  }
+  );
+  test("should display 12 characters per page", async () => {
+    await homePage.verifyCharactersPerPage();
+  });
+  test("should display the next page when clicking the 'Next' button", async () => {
+    await homePage.verifyNextPage();
+  });
+  test("should display the previous page when clicking the 'Previous' button", async () => {
+    await homePage.verifyNextPage();
+    await homePage.verifyPreviousPage();
+  });
+  test.skip("should display the last page after clicking the 'Next' button 4 times", async () => {
+    await homePage.verifyLastPage();
+  });
+
+});
