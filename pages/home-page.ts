@@ -166,7 +166,7 @@ export class HomePage {
   }
   async verifyPreviousPage() {
     await this.previousButton.click();
-    await this.verifyCharactersPerPage(13);
+    await this.verifyCharactersPerPage(12);
   }
   async verifyLastPage() {
     const nextButton = this.nextButton;
