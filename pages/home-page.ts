@@ -6,6 +6,7 @@ export class HomePage {
   readonly searchInput: Locator;
   readonly searchButton: Locator;
   readonly showAllButton: Locator;
+  readonly footer: Locator;
 
   readonly asideFilters: Locator;
   readonly clearFiltersButton: Locator;
@@ -20,6 +21,7 @@ export class HomePage {
     this.showAllButton = page.getByRole("button", { name: "Show all" });
 
     this.asideFilters = page.locator("aside");
+    this.footer = page.locator("footer");
 
     this.clearFiltersButton = page.getByRole("button", {
       name: "Clear filters",
@@ -50,7 +52,7 @@ export class HomePage {
     });
     await expect(visibleFilters).toHaveCount(1);
   }
-//+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
+  //+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
 
   async getHomePageHeaderText() {
     return this.header.textContent();
@@ -58,6 +60,11 @@ export class HomePage {
 
   async verifyTitle() {
     await expect(this.page).toHaveTitle(/Dragon ball Wiki/);
+  }
+  async verifyFooter() {
+    await expect(this.footer).toHaveText(
+      "© 2024 Dragon Ball API. All rights reserved."
+    );
   }
   async verifyShowAllButton() {
     await expect(this.showAllButton).toBeVisible();
@@ -75,7 +82,7 @@ export class HomePage {
 
     expect(brightnessValue).toBeLessThan(1);
   }
-  async verifyButtonInactive(button: Locator): Promise<void> { 
+  async verifyButtonInactive(button: Locator): Promise<void> {
     const brightnessFilter = await button.evaluate((btn) => {
       return window.getComputedStyle(btn).filter;
     });
@@ -83,7 +90,7 @@ export class HomePage {
     const brightnessMatch = brightnessFilter.match(/brightness\(([^)]+)\)/);
     const brightnessValue = brightnessMatch
       ? parseFloat(brightnessMatch[1])
-      : 1; 
+      : 1;
 
     expect(brightnessValue).toBe(1);
   }
@@ -94,9 +101,9 @@ export class HomePage {
     await this.nextButton.isVisible();
     await this.nextButton.click();
   }
-//+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
+  //+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
   async verifySearchInputField() {
-  await expect(this.searchInput).toBeVisible();
+    await expect(this.searchInput).toBeVisible();
   }
   async searchCharacter(name: string) {
     await this.searchInput.fill(name);
@@ -121,7 +128,7 @@ export class HomePage {
     );
     await expect(noResultsMessage).toBeVisible();
   }
-//+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
+  //+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
   async goto() {
     await this.page.goto("https://dragon-ball-api-react.vercel.app/");
   }
@@ -132,33 +139,45 @@ export class HomePage {
 
     await characterCard.click();
   }
-//+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
-  async verifyCharactersPerPage(){ //should display 12 characters per page while next button is visible
+  async gotoPlanets() {
+    const letsGoButton = this.page
+      .locator('button.block:has-text("Let\'s go!")')
+      .first();
+    await letsGoButton.click();
+  }
+  //+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
+  async verifyCharactersPerPage(count: number) {
+    //should display 12 characters per page while next button is visible
     //await this.page.waitForSelector('img[alt="Loading..."]', { state: 'hidden', timeout: 10000 });
     await this.page.waitForTimeout(4000);
 
-    const characters = await this.page.locator('h2.text-lg.mb-2.text-white.font-bold').count();
-    expect(characters).toBe(12);
+    const characters = await this.page
+      .locator("h2.text-lg.mb-2.text-white.font-bold")
+      .count();
+    expect(characters).toBe(count);
   }
-  async verifyNextPageButton(){
+  async verifyNextPageButton() {
     const nextPageButton = this.page.locator('button:has-text("Next")');
     await expect(nextPageButton).toBeVisible();
   }
-  async verifyNextPage(){
-
+  async verifyNextPage() {
     await this.nextButton.click();
-    await this.verifyCharactersPerPage();
+    await this.verifyCharactersPerPage(12);
   }
-  async verifyPreviousPage(){
+  async verifyPreviousPage() {
     await this.previousButton.click();
-    await this.verifyCharactersPerPage();
+    await this.verifyCharactersPerPage(12);
   }
-  async verifyLastPage(){
+  async verifyLastPage() {
     const nextButton = this.nextButton;
 
-    for (let pageCount = 0; nextButton.isVisible(); pageCount++) {
+    for (let pageCount = 0; await nextButton.isVisible(); pageCount++) {
       console.log(pageCount);
-      await this.clickNextButton();
+      try {
+        await this.clickNextButton();
+      } catch (error) {
+        await expect(nextButton).not.toBeVisible();
+      }
     }
   }
 }

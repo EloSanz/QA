@@ -1,15 +1,15 @@
 import { test, expect } from "@playwright/test";
 import { HomePage } from "../pages/home-page";
-import { TestContext } from "node:test";
 
 test.describe("Home Page", () => {
-
   let homePage: HomePage;
   test.beforeEach(async ({ page }) => {
     homePage = new HomePage(page);
     await homePage.goto();
   });
-
+  test("should have the correct footer", async () => {
+    await homePage.verifyFooter();
+  });
   test("should have the correct title", async () => {
     await homePage.verifyTitle();
   });
@@ -19,9 +19,7 @@ test.describe("Home Page", () => {
   test("Show All Button should be visible", async () => {
     await homePage.verifyShowAllButton();
   });
-
 });
-
 test.describe("Search bar", () => {
   let homePage: HomePage;
   test.beforeEach(async ({ page }) => {
@@ -44,7 +42,6 @@ test.describe("Search bar", () => {
     await homePage.verifySearchResults(validName);
   });
 });
-
 test.describe("Aside Filters", () => {
   let homePage: HomePage;
   test.beforeEach(async ({ page }) => {
@@ -55,7 +52,9 @@ test.describe("Aside Filters", () => {
     await homePage.verifyFilters();
   });
   test("should have 'Clear Filters' as the text on the Clear Filters button", async () => {
-    const clearFiltersButton = homePage.asideFilters.getByRole("button", { name: "Clear filters" });
+    const clearFiltersButton = homePage.asideFilters.getByRole("button", {
+      name: "Clear filters",
+    });
     const buttonText = await clearFiltersButton.textContent();
 
     expect(buttonText).toBe("Clear Filters");
@@ -65,7 +64,7 @@ test.describe("Aside Filters", () => {
 
     const buttonText = await firstFilterButton.textContent();
     expect(buttonText).toBe("Saiyans");
-  
+
     await firstFilterButton.click();
     await homePage.verifyButtonActive(firstFilterButton);
   });
@@ -80,18 +79,21 @@ test.describe("Aside Filters", () => {
     await homePage.verifyButtonActive(secondFilterButton);
     await homePage.verifyButtonInactive(firstFilterButton);
   });
+  test("should display the correct number of characters when a filter is selected", async () => {
+    const firstFilterButton = await homePage.getFilterButtonByIndex(1);
+    await firstFilterButton.click();
+    await homePage.verifyCharactersPerPage(10); // 10 saiyans always
+  });
 });
-
 test.describe("Pagination", () => {
   let homePage: HomePage;
 
   test.beforeEach(async ({ page }) => {
     homePage = new HomePage(page);
     await homePage.goto();
-  }
-  );
-  test("should display 12 characters per page", async () => {
-    await homePage.verifyCharactersPerPage();
+  });
+  test("should display 12 characters in the first page", async () => {
+    await homePage.verifyCharactersPerPage(12);
   });
   test("should display the next page when clicking the 'Next' button", async () => {
     await homePage.verifyNextPage();
@@ -100,8 +102,7 @@ test.describe("Pagination", () => {
     await homePage.verifyNextPage();
     await homePage.verifyPreviousPage();
   });
-  test.skip("should display the last page after clicking the 'Next' button 4 times", async () => {
+  test.skip("should hide the 'Next' button on the last page", async () => {
     await homePage.verifyLastPage();
   });
-
 });
