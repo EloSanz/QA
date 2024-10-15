@@ -102,7 +102,7 @@ test.describe("Pagination", () => {
     await homePage.verifyNextPage();
     await homePage.verifyPreviousPage();
   });
-  test.skip("should hide the 'Next' button on the last page", async () => {
+  test("should hide the 'Next' button on the last page", async () => {
     await homePage.verifyLastPage();
   });
 });
