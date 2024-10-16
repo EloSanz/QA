@@ -41,6 +41,24 @@ test.describe("Search bar", () => {
     await homePage.searchCharacter(validName);
     await homePage.verifySearchResults(validName);
   });
+  test.skip("should clean filters when show all button is clicked after a search", async () => {
+    const namekianFilterButton = await homePage.getFilterButtonByText("Namekian");
+    await namekianFilterButton.click();
+
+    await homePage.searchCharacter("g");
+
+    await homePage.clickShowAllButton();
+    
+    await homePage.verifyFiltersClean();
+  });
+  test.skip("should clean the search input when clicking the 'Show All' button", async () => {
+    const validName = "Goku";
+    await homePage.searchCharacter(validName);
+    await homePage.verifySearchResults(validName);
+
+    await homePage.clickShowAllButton();
+    await homePage.verifySearchInputFieldEmpty();
+  });
 });
 test.describe("Aside Filters", () => {
   let homePage: HomePage;

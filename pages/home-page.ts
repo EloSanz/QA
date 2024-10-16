@@ -20,7 +20,7 @@ export class HomePage {
     this.searchButton = page.locator('button:has-text("Search")');
     this.showAllButton = page.getByRole("button", { name: "Show all" });
 
-    this.asideFilters = page.locator("aside");
+    this.asideFilters = page.locator("aside").first();
     this.footer = page.locator("footer");
 
     this.clearFiltersButton = page.getByRole("button", {
@@ -40,7 +40,7 @@ export class HomePage {
   }
 
   async getFilterButtonByText(text: string): Promise<Locator> {
-    return this.page.locator(`aside button:has-text("${text}")`);
+    return this.page.locator(`aside button:has-text("${text}")`).first();
   }
 
   async getAsideFilters() {
@@ -51,6 +51,14 @@ export class HomePage {
       has: this.page.locator(":visible"),
     });
     await expect(visibleFilters).toHaveCount(1);
+  }
+  async verifyFiltersClean() {
+    const filterButtons = this.asideFilters.locator("button");
+    const filtersCount = await filterButtons.count() - 1;
+    for(let i = 1; i < filtersCount; i++) {
+      const filterButton = await this.getFilterButtonByIndex(i);
+      await this.verifyButtonInactive(filterButton);
+    }
   }
   //+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
 
@@ -127,6 +135,9 @@ export class HomePage {
       'p:has-text("No characters found :(")'
     );
     await expect(noResultsMessage).toBeVisible();
+  }
+  async verifySearchInputFieldEmpty() {
+    await expect(this.searchInput).toHaveValue("");
   }
   //+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+//
   async goto() {

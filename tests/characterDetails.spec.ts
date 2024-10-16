@@ -53,3 +53,9 @@ test("Hide Transformations Button should hide the transformations", async () => 
   await characterDPage.showTransformations();
   await characterDPage.hideTransformations();
 });
+test("Home button should navigate to home page", async ({page}) => {
+  await homePage.gotoCharacter("Goku");
+  await characterDPage.clickHomeButton();
+  const currentUrl = page.url();
+  expect(currentUrl).toBe('https://dragon-ball-api-react.vercel.app/');
+});

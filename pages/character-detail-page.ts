@@ -6,13 +6,18 @@ export class CharacterDetailPage {
     readonly characterCard: Locator;
     readonly showPlanetButton: Locator;
     readonly showTransformationsButton: Locator;
-
+    readonly homeButton: Locator;
     constructor(page: Page) {
         this.page = page;
         this.header = page.locator("h1");
         this.characterCard = page.locator("div#character-card-container");
         this.showPlanetButton = this.characterCard.locator('button:has-text("Show Planet")');
         this.showTransformationsButton = this.characterCard.locator('button:has-text("Show Transformations")');
+        this.homeButton = page.locator("button:has-text('Back to Home')");
+
+    }
+    async clickHomeButton() {
+        await this.homeButton.click();
     }
     async verifyHeader() {
         await expect( this.header).toBeVisible();
