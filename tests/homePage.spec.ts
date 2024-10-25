@@ -10,12 +10,15 @@ test.describe("Home Page", () => {
   test("should have the correct footer", async () => {
     await homePage.verifyFooter();
   });
+  //TC-HP1
   test("should have the correct title", async () => {
     await homePage.verifyTitle();
   });
+  //TC-HP2
   test("Search Input Field should be visible", async () => {
     await homePage.verifySearchInputField();
   });
+  //TC-HP3
   test("Show All Button should be visible", async () => {
     await homePage.verifyShowAllButton();
   });
@@ -122,5 +125,30 @@ test.describe("Pagination", () => {
   });
   test("should hide the 'Next' button on the last page", async () => {
     await homePage.verifyLastPage();
+  });
+  test("should hide the 'Previous' button on the first page with filters", async () => {
+    const firstFilterButton = await homePage.getFilterButtonByText("Z Fighter");
+    await firstFilterButton.click();
+    await expect(homePage.previousButton).toBeHidden();
+
+  });
+
+  test.skip("should hide the 'Next' button on the last page with filters", async () => {
+    const firstFilterButton = await homePage.getFilterButtonByText("Z Fighter");
+    await firstFilterButton.click();
+
+    await expect(homePage.nextButton).toBeVisible();
+    await homePage.nextButton.click();
+
+    await expect(homePage.nextButton).toBeHidden(); // failing
+  });
+  test.skip("should display the 'Previous' button on the last page with filters", async () => {
+    const firstFilterButton = await homePage.getFilterButtonByText("Z Fighter");
+    await firstFilterButton.click();
+
+    await expect(homePage.nextButton).toBeVisible();
+    await homePage.nextButton.click();
+
+    await expect(homePage.previousButton).toBeVisible(); // failing
   });
 });

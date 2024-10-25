@@ -7,20 +7,25 @@ export class CharacterDetailPage {
     readonly showPlanetButton: Locator;
     readonly showTransformationsButton: Locator;
     readonly homeButton: Locator;
+    readonly planetImage: Locator;
+    readonly titlePlanet: Locator;
     constructor(page: Page) {
         this.page = page;
         this.header = page.locator("h1");
         this.characterCard = page.locator("div#character-card-container");
-        this.showPlanetButton = this.characterCard.locator('button:has-text("Show Planet")');
-        this.showTransformationsButton = this.characterCard.locator('button:has-text("Show Transformations")');
+        this.showPlanetButton = this.page.locator('button:has-text("Show Planet")');
+        this.showTransformationsButton = this.page.locator('button:has-text("Show Transformations")');
         this.homeButton = page.locator("button:has-text('Back to Home')");
-
+        this.planetImage = page.locator("img[alt='Planet']");
+        this.titlePlanet = page.locator("h5:has-text('is from here')");
     }
     async clickHomeButton() {
         await this.homeButton.click();
     }
-    async verifyHeader() {
-        await expect( this.header).toBeVisible();
+    async verifyHeader(title: string) {
+        // await expect( this.header).toContainText(title); // working
+        const characterName = await this.header.textContent();
+        expect(characterName).toBe(title);
     }
     async verifyCharacterCardName(name: string) {
         const characterName = await this.characterCard.locator("h5").textContent();
@@ -38,11 +43,17 @@ export class CharacterDetailPage {
     }
     async showPlanet(name: string) {
         await this.showPlanetButton.click();
-        const planet = await this.page.locator("h5:has-text('is from here')").textContent();
+        const planet = await this.titlePlanet.textContent();
         expect(planet).toContain(`${name} is from here`);
+        await this.verifyPlanetImage();
+    }
+    private async verifyPlanetImage() {
+        const planetImage = this.planetImage;
+        await expect(planetImage).toBeVisible();
     }
     async hidePlanet() {
         const hidePlanetButton = this.characterCard.locator('button:has-text("Hide Planet")');
+        //const hidePlanetButton = this.page.locator('button:has-text("Hide Planet")');
         await hidePlanetButton.click();
         await expect(this.page.locator("h5:has-text('is from here')")).toBeHidden();
       

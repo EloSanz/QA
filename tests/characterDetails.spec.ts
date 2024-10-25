@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 
 test("page should go to Character Goku ", async () => {
   await homePage.gotoCharacter("Goku");
-  await characterDPage.verifyHeader();
+  await characterDPage.verifyHeader("Character Details");
 });
 test("Character Card should have the correct name", async () => {
   const name = "Goku";
@@ -58,4 +58,10 @@ test("Home button should navigate to home page", async ({page}) => {
   await characterDPage.clickHomeButton();
   const currentUrl = page.url();
   expect(currentUrl).toBe('https://dragon-ball-api-react.vercel.app/');
+});
+test.skip("Character should have attached his planet", async () => {
+  const name = "Gran Kaio"; // Falla
+  await homePage.searchCharacter(name);
+  await homePage.gotoCharacter(name);
+  await characterDPage.showPlanet(name);
 });
